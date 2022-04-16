@@ -1,0 +1,82 @@
+-- SPDX-FileCopyrightText: 2022 Max Reznik <reznikmm@gmail.com>
+--
+-- SPDX-License-Identifier: Apache-2.0
+-------------------------------------------------------------------------
+
+with "matreshka_league";
+
+project RST_Unparser is
+
+   type Library_Kind is ("static", "relocatable");
+   Library_Type : Library_Kind := external ("LIBRARY_TYPE", "relocatable");
+
+   type Project_Build_Kind is ("dev", "prod", "coverage");
+   Build_Mode : Project_Build_Kind :=
+     external ("RST_UNPARSER_BUILD_MODE", external ("BUILD_MODE", "prod"));
+
+   Version := "0.1";
+
+   for Library_Kind use Library_Type;
+   for Library_Name use "rstunparser";
+   for Library_Dir use "../.libs";
+   for Library_ALI_Dir use "../.libs";
+   for Library_Version use "librstunparser.so." & Version;
+
+   for Source_Dirs use ("../source/");
+   for Object_Dir use "../.objs/" & Library_Type;
+
+   Ada_Switches :=
+     ("-gnat12", "-gnatW8", "-g");
+
+   Check_Ada_Switches :=
+     ("-gnatVa", "-gnatwea", "-gnaty", "-gnata");
+
+   Linker_Options := ();
+
+   case Build_Mode is
+      when "prod" =>
+         Ada_Switches := Ada_Switches & ("-O2");
+      when "dev" =>
+         Ada_Switches := Ada_Switches & Check_Ada_Switches;
+      when "coverage" =>
+         Ada_Switches := Ada_Switches & (
+            --  Enable coverage code instrumentation.
+            "--coverage");
+
+         Linker_Options := Linker_Options & ("--coverage");
+   end case;
+
+   package Compiler is
+      for Default_Switches ("ada") use Ada_Switches;
+   end Compiler;
+
+   package Linker is
+      for Linker_Options use Linker_Options;
+   end Linker;
+
+   package Remote is
+      for Root_Dir use "..";
+   end Remote;
+
+   package Builder is
+      for Switches (others) use ("-m");  --  minimum recompilation
+   end Builder;
+
+   package Pretty_Printer is
+      for Default_Switches ("ada") use
+        ("--no-align-modes",
+         "--no-separate-is",
+         "--call-threshold=1",
+         "--par-threshold=2",
+         "--vertical-named-aggregates",
+         "--wide-character-encoding=8");
+   end Pretty_Printer;
+
+   package GNATstub is
+      for Default_Switches ("ada") use
+        ("--alphabetical-order",
+         "--no-exception",
+         "--wide-character-encoding=8");
+   end GNATstub;
+
+end RST_Unparser;

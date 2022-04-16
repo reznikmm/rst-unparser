@@ -1,0 +1,8 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: rst-unparser
+Upstream-Contact: Max Reznik <reznikmm@gmail.com>
+Source: https://github.com/reznikmm/rst-unparser
+
+Files: README.md
+Copyright: 2022 Max Reznik <reznikmm@gmail.com>
+License: Apache-2.0

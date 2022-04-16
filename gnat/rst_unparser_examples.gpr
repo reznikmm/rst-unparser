@@ -1,0 +1,51 @@
+-- SPDX-FileCopyrightText: 2022 Max Reznik <reznikmm@gmail.com>
+--
+-- SPDX-License-Identifier: Apache-2.0
+-------------------------------------------------------------------------
+
+with "rst_unparser";
+
+project RST_Unparser_Examples is
+
+   for Source_Dirs use
+     ("../examples/unparse",
+      "../examples/replace");
+   for Object_Dir use "../.objs";
+   for Main use ("unparse.adb", "replace.adb");
+
+   Default_Ada_Switches :=
+     ("-gnat12", "-gnatW8", "-g");
+
+   Check_Ada_Switches := Default_Ada_Switches &
+     ("-gnatVa", "-gnatwea", "-gnaty", "-gnata");
+
+   package Compiler is
+      for Default_Switches ("ada") use Check_Ada_Switches;
+   end Compiler;
+
+   package Remote is
+      for Root_Dir use "..";
+   end Remote;
+
+   package Builder is
+      for Switches (others) use ("-m");  --  minimum recompilation
+   end Builder;
+
+   package Pretty_Printer is
+      for Default_Switches ("ada") use
+        ("--no-align-modes",
+         "--no-separate-is",
+         "--call-threshold=1",
+         "--par-threshold=2",
+         "--vertical-named-aggregates",
+         "--wide-character-encoding=8");
+   end Pretty_Printer;
+
+   package GNATstub is
+      for Default_Switches ("ada") use
+        ("--alphabetical-order",
+         "--no-exception",
+         "--wide-character-encoding=8");
+   end GNATstub;
+
+end RST_Unparser_Examples;
